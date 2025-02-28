@@ -6,6 +6,8 @@ from pprint import pprint
 from threading import Lock
 import concurrent.futures
 from utils.connect import get_collection, get_db, connect
+from utils.memory import get_number_of_rows_from_size
+from itertools import cycle
 def create_random_doc():
     toggle = random.choice([True, False])
     task_number = random.randint(1, sys.maxsize)
@@ -29,30 +31,31 @@ def create_random_docs(batch_size):
 
 def process_batch(connection, batch_size,
                 batch_number,
-                lock, docs, number_of_batches):
+                docs, number_of_batches, db_name, collection_name):
     if not docs:
         docs = create_random_docs(batch_size)
-    collection = get_collection(connection)
+    collection = get_collection(connection, db_name, collection_name)
     print(f'{batch_number}/{number_of_batches}: inserting {batch_size} docs')
+
     collection.insert_many(docs)
     print(f'{batch_number}/{number_of_batches}: successfully inserted '
           f'{batch_size} docs')
     return
-def pump_data(connection, db_name=None, total_size=None, batch_size=100,
+def pump_data(connection, db_name, total_size, batch_size=10000,
                   max_threads=128):
-    total_docs_required = 10000 #todo
-    number_of_batches = total_docs_required // batch_size
+    number_of_batches = get_number_of_rows_from_size(total_size) // batch_size
     future_to_batch = {}
     workers = min(max_threads, number_of_batches)
+    collections = get_db(connection, db_name).list_collection_names()
+    coll_cycle = cycle(collections)
     print('number of workers - {}'.format(workers))
-    lock = Lock()
     with concurrent.futures.ThreadPoolExecutor(
             max_workers=workers) as executor:
         for batch_number in range(1, number_of_batches + 1):
             arg = (
                 connection, batch_size,
-                batch_number,
-                lock, None, number_of_batches)
+                batch_number, None, number_of_batches, db_name,
+                coll_cycle.__next__())
             future_to_batch[
                 executor.submit(process_batch, *arg)] = batch_number
 
@@ -65,8 +68,6 @@ def pump_data(connection, db_name=None, total_size=None, batch_size=100,
                 result.append(batch_number)
         except Exception as exc:
             print("%r generated an exception: %s" % (batch_number, exc))
-            # todo: handle here sequentially for error batches
-
     return result
 
 
@@ -74,4 +75,4 @@ def pump_data(connection, db_name=None, total_size=None, batch_size=100,
 
 if __name__ == '__main__':
     connection = connect('10.3.59.156')
-    pump_data(connection)
+    pump_data(connection,'test_database', '1G',)
