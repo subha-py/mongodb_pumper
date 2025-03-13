@@ -74,5 +74,5 @@ def pump_data(connection, total_size, batch_size=10000,
     return result
 
 if __name__ == '__main__':
-    connection = connect('10.3.59.156')
+    connection = connect('10.3.59.157')
     pump_data(connection, '100M', create_database=True)
