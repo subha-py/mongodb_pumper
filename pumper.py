@@ -14,7 +14,7 @@ if __name__ == '__main__':
     required.add_argument('--host', help='ip/hostname of the db', type=str, required=True)
     optional.add_argument('--size', help='size of data will be inserted(default 100G)', type=str, default='100G')
     optional.add_argument('--batch_size', help='number of rows to inserted at a time', type=int, default=10000)
-    optional.add_argument('--threads', help='threads to run data pump', type=int, default=128)
+    optional.add_argument('--threads', help='threads to run data pump', type=int, default=2)
 
     # parsing
     result = parser.parse_args()
