@@ -53,10 +53,13 @@ PASSWORD = 'root'
 
 
 COMMANDS = [
-    'rpm -e cohesity-agent',
-    'rpm -ivh https://artifactory.eng.cohesity.com/artifactory/cohesity-builds-staging/7.2.2_u2/20250611-152419/release_full/internal_only_rpms_package/el-cohesity-agent-7.2.2_u2-1.x86_64.rpm',
-    'rpm -e cohesity-mongodb-connector',
-    'rpm -ivh https://artifactory.eng.cohesity.com/artifactory/cohesity-builds-staging/7.2.2_u2/20250611-152419/release_full/internal_only_rpms_package/cohesity-mongodb-connector-7.2.2_u2-1.x86_64.rpm --force'# Add more commands as needed
+    # 'rpm -e cohesity-agent',
+    # 'rpm -ivh https://artifactory.eng.cohesity.com/artifactory/cohesity-builds-staging/7.2.2_u2/20250611-152419/release_full/internal_only_rpms_package/el-cohesity-agent-7.2.2_u2-1.x86_64.rpm',
+    # 'rpm -e cohesity-mongodb-connector',
+    # 'rpm -ivh https://artifactory.eng.cohesity.com/artifactory/cohesity-builds-staging/7.2.2_u2/20250611-152419/release_full/internal_only_rpms_package/cohesity-mongodb-connector-7.2.2_u2-1.x86_64.rpm --force'# Add more commands as needed
+    'rm -rf /etc/cohesity-agent/server_cert',
+    'rm -rf /etc/cohesity-agent/agent.cfg',
+    'systemctl restart cohesity-agent',
 ]
 
 # --- SSH Client Setup ---
